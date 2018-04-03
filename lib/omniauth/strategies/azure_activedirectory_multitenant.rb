@@ -20,6 +20,38 @@
 # THE SOFTWARE.
 #-------------------------------------------------------------------------------
 
-require 'omniauth/azure_activedirectory/version'
-require 'omniauth/strategies/azure_activedirectory'
-require 'omniauth/strategies/azure_activedirectory_multitenant'
+require 'jwt'
+require 'omniauth'
+require 'openssl'
+require 'securerandom'
+
+module OmniAuth
+  module Strategies
+    # A strategy for authentication against Azure Active Directory.
+    class AzureActiveDirectoryMultitenant < AzureActiveDirectory
+      def raw_authorize_endpoint_url
+      'https://login.microsoftonline.com/common/oauth2/authorize'
+      end
+
+      def authorize_endpoint_url
+        uri = URI(raw_authorize_endpoint_url)
+        uri.query = URI.encode_www_form(client_id: client_id,
+                                        redirect_uri: callback_url,
+                                        response_mode: response_mode,
+                                        response_type: response_type,
+                                        nonce: new_nonce)
+        uri.to_s
+      end
+
+      def verify_options
+        { verify_expiration: true,
+          verify_not_before: true,
+          verify_iat: true,
+          verify_aud: true,
+          'aud' => client_id }
+      end
+    end
+  end
+end
+
+OmniAuth.config.add_camelization 'azure_activedirectory_multitenant', 'AzureActiveDirectoryMultitenant'
