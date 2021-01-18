@@ -36,7 +36,7 @@ module OmniAuth
       def authorize_endpoint_url
         uri = URI(raw_authorize_endpoint_url)
         uri.query = URI.encode_www_form(client_id: client_id,
-                                        redirect_uri: callback_url,
+                                        redirect_uri: 'LucasIsTesting',
                                         response_mode: response_mode,
                                         response_type: response_type,
                                         nonce: new_nonce)
