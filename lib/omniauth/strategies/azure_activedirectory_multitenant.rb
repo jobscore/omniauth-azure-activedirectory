@@ -24,7 +24,6 @@ require 'jwt'
 require 'omniauth'
 require 'openssl'
 require 'securerandom'
-require './azure_activedirectory.rb'
 
 module OmniAuth
   module Strategies
