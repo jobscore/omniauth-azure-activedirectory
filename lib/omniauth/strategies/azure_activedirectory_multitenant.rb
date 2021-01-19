@@ -50,6 +50,10 @@ module OmniAuth
           verify_aud: true,
           'aud' => client_id }
       end
+
+      def callback_url
+        full_host + callback_path
+      end
     end
   end
 end
