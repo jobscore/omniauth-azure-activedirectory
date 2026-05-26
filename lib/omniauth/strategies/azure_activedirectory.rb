@@ -283,7 +283,7 @@ module OmniAuth
             end
             # The key also contains other fields, such as n and e, that are
             # redundant. x5c is sufficient to verify the id token.
-            OpenSSL::X509::Certificate.new(JWT::Decode.base64url_decode(x5c.first)).public_key
+            OpenSSL::X509::Certificate.new(JWT::Base64.url_decode(x5c.first)).public_key
           end
         return jwt_claims, jwt_header if jwt_claims['nonce'] == read_nonce
         fail JWT::DecodeError, 'Returned nonce did not match.'
@@ -300,7 +300,7 @@ module OmniAuth
         # This maps RS256 -> sha256, ES384 -> sha384, etc.
         algorithm = (header['alg'] || 'RS256').sub(/RS|ES|HS/, 'sha')
         full_hash = OpenSSL::Digest.new(algorithm).digest code
-        c_hash = JWT::Encode.base64url_encode full_hash[0..full_hash.length / 2 - 1]
+        c_hash = JWT::Base64.url_encode(full_hash[0, full_hash.length / 2])
         return if c_hash == claims['c_hash']
         fail JWT::VerificationError,
              'c_hash in id token does not match auth code.'
@@ -318,9 +318,10 @@ module OmniAuth
           verify_not_before: true,
           verify_iat: true,
           verify_iss: true,
-          'iss' => issuer,
+          iss: issuer,
           verify_aud: true,
-          'aud' => client_id }
+          aud: client_id,
+          algorithms: ['RS256'] }
       end
     end
   end
